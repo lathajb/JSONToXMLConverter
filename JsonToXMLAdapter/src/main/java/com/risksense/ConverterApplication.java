@@ -10,20 +10,10 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootApplication
-@ImportResource("classpath:app-config.xml")
 public class ConverterApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ConverterApplication.class, args);
 	}
 	
-	@Bean
-	public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
-	
-		MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
-		ObjectMapper objectMapper = new ObjectMapper();
-		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		jsonConverter.setObjectMapper(objectMapper);
-		return jsonConverter;
-	}
 }

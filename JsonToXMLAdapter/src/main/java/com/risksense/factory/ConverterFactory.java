@@ -12,15 +12,11 @@ import com.risksense.converters.JSONXMLConverterImpl;
  */
 public final class ConverterFactory {
 
-	private ConverterFactory(String jsonPayload,JSONXMLConverter jsonxmlConverter) {
-		this.jsonPayload = jsonPayload;
+	private final  JSONXMLConverter jsonxmlConverter;
+	
+	private ConverterFactory(JSONXMLConverter jsonxmlConverter) {
 		this.jsonxmlConverter = jsonxmlConverter;
 	}
-	
-	private final String jsonPayload;
-	
-	@Autowired
-	private final JSONXMLConverter jsonxmlConverter;
 	
 	
 	
@@ -32,10 +28,8 @@ public final class ConverterFactory {
      * @throws IOException 
      */
     public static final JSONXMLConverter createJSONToXMLConverter() throws IOException {
-    	
     	JSONXMLConverter jsonxmlConverter = new JSONXMLConverterImpl();
-    	
-    	return jsonxmlConverter;
+    return jsonxmlConverter;
       
     }
 }

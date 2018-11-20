@@ -5,7 +5,7 @@ import java.io.IOException;
 /**
  * This interface provides methods that are required for creating a converter from JSON to XML.
  */
-public interface JSONXMLConverter {
+public interface JSONXMLConverter{
 
     /**
      * Reads in the JSON from the given file and outputs the data, converted to
