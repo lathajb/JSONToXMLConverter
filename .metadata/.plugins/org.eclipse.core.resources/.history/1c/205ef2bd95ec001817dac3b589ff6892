@@ -1,0 +1,21 @@
+/**
+ * 
+ */
+package com.springboot.app.adapter.adapter;
+
+import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+
+/**
+ * @author janlatha
+ *
+ */
+@Service
+public class XMLJSONConverterImpl implements XMLJSONConverter{
+	
+
+
+}

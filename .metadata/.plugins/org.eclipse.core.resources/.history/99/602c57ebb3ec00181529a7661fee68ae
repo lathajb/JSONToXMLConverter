@@ -1,0 +1,27 @@
+package com.springboot.app.adapter.adapter;
+
+
+/**
+ * 
+ * @author janlatha
+ *
+ */
+public class ConverterFactory {
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String createXMLJSONConverter(String type){
+		
+		String resultObj = null;
+		if(type.equals("number")) {
+			resultObj = null;;
+		}else {
+			
+		}
+		
+		return resultObj;
+	}
+
+}

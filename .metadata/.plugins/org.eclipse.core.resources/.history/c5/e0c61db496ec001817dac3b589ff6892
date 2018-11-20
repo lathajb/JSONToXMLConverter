@@ -1,0 +1,9 @@
+package com.springboot.app.adapter.adapter;
+
+public class ConverterFactory {
+	
+	public createXMLJSONConverter{
+	
+	}
+
+}

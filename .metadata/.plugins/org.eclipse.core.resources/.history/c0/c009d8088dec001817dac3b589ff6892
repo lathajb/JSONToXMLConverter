@@ -1,0 +1,16 @@
+package com.springboot.app.adapter.controller;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class AdaptorController {
+	
+	
+	    @GetMapping("/hello")
+	    public String welcomeUser(@RequestParam(name="name", required=false, defaultValue="Java Fan") String name) {
+	        return "hello";
+	    }
+
+}

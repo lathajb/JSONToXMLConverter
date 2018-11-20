@@ -1,0 +1,24 @@
+package com.risksense;
+
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.risksense.converters.ConverterFactory;
+import com.risksense.converters.JSONXMLConverter;
+
+@RestController
+public class ConverterController {
+
+	
+	    @PostMapping(path = "/xmlconverter" ,consumes = {"application/json","application/xml"}, produces = {"application/xml","application/json"})
+	    public String jsonXMLConverter(@RequestBody String jsonPayload, @RequestParam(name="name", required=false, defaultValue="Java Fan") String name) throws Exception{
+	    	System.out.println("inside method");
+	    	JSONXMLConverter jxc = null;
+	    	jxc =	ConverterFactory.createJSONToXMLConverter();
+	    	String xmlResponse = jxc.convertJSONtoXML(jsonPayload);
+	     return  xmlResponse;
+	    }
+
+}

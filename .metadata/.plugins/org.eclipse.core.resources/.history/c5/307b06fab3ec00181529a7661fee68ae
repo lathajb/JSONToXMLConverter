@@ -1,0 +1,5 @@
+package com.springboot.app.adapter.controller;
+
+public class NumberXMLRootElement {
+
+}

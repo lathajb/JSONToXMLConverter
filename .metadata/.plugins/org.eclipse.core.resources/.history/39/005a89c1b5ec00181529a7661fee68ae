@@ -1,0 +1,13 @@
+package com.risksense.converters;
+
+import java.io.File;
+import java.io.IOException;
+
+public class JSONXMLConverterImpl implements JSONXMLConverter{
+
+	@Override
+	public void convertJSONtoXML(String json, String xml) throws IOException {
+		
+	}
+	
+}

@@ -1,0 +1,27 @@
+package com.springboot.app.adapter.controller;
+
+import java.io.Serializable;
+
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+
+@JacksonXmlRootElement
+public class StringXMLRootElement implements Serializable {
+
+	    private static final long serialVersionUID = 22L;
+
+	    @JacksonXmlProperty(localName = "string")
+	    private String string;
+
+		public String getString() {
+			return string;
+		}
+
+		public void setString(String string) {
+			this.string = string;
+		}
+	       
+	
+
+}

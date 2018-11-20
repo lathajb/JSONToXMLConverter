@@ -1,0 +1,39 @@
+package com.risksense.converters;
+
+import java.io.IOException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+/**
+ * Factory class for creating instances of {@link JSONXMLConverter}.
+ */
+public final class ConverterFactory {
+
+	
+	private ConverterFactory(JSONXMLConverter jsonxmlConverter) {
+		this.jsonxmlConverter = jsonxmlConverter;
+	}
+	
+	@Autowired
+	private final JSONXMLConverter jsonxmlConverter;
+	
+    /**
+     * You should implement this method having it return your version of
+     * {@link com.risksense.converters.JSONXMLConverter}.
+     *
+     * @return {@link com.risksense.converters.JSONXMLConverter} implementation you created.
+     */
+    public static final JSONXMLConverter createXMLJSONConverter() {
+    	
+    	JSONXMLConverter jsonxmlConverter = new JSONXMLConverterImpl();
+    	
+    	try {
+    		
+    	}catch(UnsupportedOperationException uso) {
+    		
+    	}
+    	
+    	return jsonxmlConverter;
+      
+    }
+}

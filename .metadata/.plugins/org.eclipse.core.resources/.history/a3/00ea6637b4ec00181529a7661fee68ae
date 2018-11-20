@@ -1,0 +1,14 @@
+/**
+ * 
+ */
+package com.springboot.app.adapter.adapter;
+
+/**
+ * @author janlatha
+ *
+ */
+public interface XMLJSONConverter {
+	
+	
+
+}

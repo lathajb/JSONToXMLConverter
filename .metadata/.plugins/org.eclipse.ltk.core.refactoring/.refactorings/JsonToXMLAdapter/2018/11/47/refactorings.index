@@ -1,0 +1,23 @@
+1542692690731	Rename package 'com.adapter'
+1542692795192	Rename package 'com.adapter.app'
+1542692806371	Rename package 'com.adapter.controller'
+1542692816215	Rename package 'com.adapter.adapter'
+1542692915415	Rename package 'com.adapterapp.controller'
+1542692932196	Rename package 'com.adapterapp.adapter'
+1542692955464	Rename package 'com.adapterapp'
+1542711842837	Rename package 'com.springboot.app.adapter'
+1542711862941	Move compilation unit
+1542711899498	Rename type 'XMLJSONConverterI'
+1542711940288	Delete element
+1542711947773	Delete elements
+1542712045032	Rename package 'com.risksense.converters'
+1542712075235	Move compilation unit
+1542712078510	Delete element
+1542712098580	Rename type 'AdaptorController'
+1542712119118	Move compilation unit
+1542712122530	Move compilation unit
+1542712445059	Rename compilation unit 'XMLJSONConverter.java'
+1542715195005	Move compilation unit
+1542718639761	Rename type 'JsonToXmlAdapterApplication'
+1542718651856	Move compilation unit
+1542718761451	Move compilation unit

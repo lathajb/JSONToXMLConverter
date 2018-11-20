@@ -1,0 +1,59 @@
+package com.risksense.converters;
+
+import java.io.IOException;
+import java.io.StringWriter;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+public class JSONXMLConverterImpl implements JSONXMLConverter{
+
+	@Override
+	public String convertJSONtoXML(String json, String xml) throws IOException {
+		
+		String xmlRespoinse = null;
+		
+		try {
+			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+
+			// root elements
+			 Document doc = docBuilder.newDocument();
+			 
+			 Element rootElement = doc.createElement("string");
+			 rootElement.appendChild(doc.createTextNode(json));
+			 doc.appendChild(rootElement);
+
+			 xmlRespoinse = toXmlString(doc);
+			
+		}catch(Exception e) {
+			
+		}
+		
+		return xmlRespoinse;
+		
+	}
+	
+	private static String toXmlString(Document document) throws TransformerException {
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        DOMSource source = new DOMSource(document);
+        StringWriter strWriter = new StringWriter();
+        StreamResult result = new StreamResult(strWriter);
+    
+        transformer.transform(source, result);
+        
+        return strWriter.getBuffer().toString();
+        
+    }
+	
+}

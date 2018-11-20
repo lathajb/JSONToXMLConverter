@@ -1,0 +1,17 @@
+/**
+ * 
+ */
+package com.springboot.app.adapter.adapter;
+
+import org.springframework.stereotype.Service;
+
+/**
+ * @author janlatha
+ *
+ */
+@Service
+public class XMLJSONConverterImpl implements XMLJSONConverter{
+	
+
+
+}

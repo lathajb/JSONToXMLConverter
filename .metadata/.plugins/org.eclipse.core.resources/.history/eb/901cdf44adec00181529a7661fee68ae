@@ -1,0 +1,44 @@
+package com.springboot.app.adapter.controller;
+
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.boot.json.JsonParserFactory;
+import org.springframework.core.MethodParameter;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.mvc.method.annotation.JsonViewResponseBodyAdvice;
+import org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.JSONPObject;
+import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+
+@RestController
+public class AdaptorController {
+	
+	
+	    @PostMapping(path = "/hello" ,consumes = {"application/json","application/xml"}, produces = {"application/xml","text/xml"})
+	    public String welcomeUser(@RequestBody String payload, @RequestParam(name="name", required=false, defaultValue="Java Fan") String name) throws Exception{
+	    	
+	    	
+	     
+	     System.out.println(payload.getClass().isPrimitive());
+	     	
+	    	   
+	       return "hello";
+	    }
+
+}

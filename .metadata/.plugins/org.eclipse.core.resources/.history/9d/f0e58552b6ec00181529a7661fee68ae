@@ -1,0 +1,18 @@
+package com.risksense.converters;
+
+/**
+ * Factory class for creating instances of {@link JSONXMLConverter}.
+ */
+public final class ConverterFactory {
+
+    /**
+     * You should implement this method having it return your version of
+     * {@link com.risksense.converters.JSONXMLConverter}.
+     *
+     * @return {@link com.risksense.converters.JSONXMLConverter} implementation you created.
+     */
+    public static final JSONXMLConverter createXMLJSONConverter() {
+       // Todo: Implement this method please.
+        throw new UnsupportedOperationException("Please implement me!");
+    }
+}

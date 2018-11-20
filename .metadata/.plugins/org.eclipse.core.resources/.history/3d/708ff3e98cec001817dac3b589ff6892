@@ -1,0 +1,16 @@
+/**
+ * 
+ */
+package com.springboot.app.adapter.adapter;
+
+/**
+ * @author janlatha
+ *
+ */
+public class XMLJSONConverterImpl implements XMLJSONConverter{
+	
+	JacksonXmlModule xmlModule = new JacksonXmlModule();
+	xmlModule.setDefaultUseWrapper(false);
+	ObjectMapper objectMapper = new XmlMapper(module);
+
+}

@@ -1,0 +1,7 @@
+package com.springboot.app.adapter.adapter;
+
+public class ConverterFactory {
+	
+	@RequestBody String payload
+
+}

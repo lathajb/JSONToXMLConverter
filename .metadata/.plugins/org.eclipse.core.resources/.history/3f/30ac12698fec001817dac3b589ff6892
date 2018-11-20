@@ -1,0 +1,27 @@
+package com.springboot.app.adapter.controller;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+
+@RestController
+public class AdaptorController {
+	
+	
+	    @GetMapping(path = "/hello" ,consumes = {"application/json","application/xml"}, produces = {"application/json","application/xml"})
+	    public String welcomeUser(@RequestParam(name="name", required=false, defaultValue="Java Fan") String name) {
+	    	
+	    	JacksonXmlModule xmlModule = new JacksonXmlModule();
+	    	xmlModule.setDefaultUseWrapper(false);
+	    	
+	    	ObjectMapper objectMapper = new XmlMapper(xmlModule);
+	    	
+	        return "hello";
+	    }
+
+}
