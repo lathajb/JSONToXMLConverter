@@ -14,65 +14,55 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.assertj.core.util.Arrays;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 
 public class JSONXMLConverterImpl implements JSONXMLConverter {
 
 	@Override
 	public String convertJSONtoXML(String jsonPayload) throws IOException{
 		
-		String xmlResponse = null;
+		
+		
+		Element rootElement = null;
 		DocumentBuilderFactory docFactory = null;
 		DocumentBuilder docBuilder = null;
 		Document doc = null;
+		String responseXML = null;
 		
 		try {
 			
 			docFactory = DocumentBuilderFactory.newInstance();
 			docBuilder = docFactory.newDocumentBuilder();
 			doc = docBuilder.newDocument();
+			
 			int arrayIndex = jsonPayload.indexOf("[");
 			
-			if(isNumeric(jsonPayload)) {
-				 xmlResponse = constructXMLElement(doc,"number",jsonPayload);
-			}else if(jsonPayload.equals("true") || jsonPayload.equals("false") || jsonPayload.equals("TRUE") || jsonPayload.equals("FALSE") ) {
-				xmlResponse = constructXMLElement(doc,"boolean",jsonPayload);
-			}else if(jsonPayload.equals("null") || jsonPayload.equals("NULL")) {
-				xmlResponse = constructXMLElement(doc,"null",jsonPayload);
-			
-			}else if(arrayIndex == -1 ? false : true ) {
-				
-					String [] arrayCommaSliper = jsonPayload.replaceAll("[\\[\\]]", "").split(",");
-					
-					for(String arrayElem : arrayCommaSliper) {
-						if(isNumeric(arrayElem)) {
-							 xmlResponse = constructXMLElement(doc,"number",arrayElem);
-						}else if(arrayElem.equals("true") || arrayElem.equals("false") || arrayElem.equals("TRUE") || arrayElem.equals("FALSE") ) {
-							xmlResponse = constructXMLElement(doc,"boolean",arrayElem);
-						}else if(arrayElem.equals("null") || arrayElem.equals("NULL")) {
-							xmlResponse = constructXMLElement(doc,"null",arrayElem);
-						}else {
-							xmlResponse = constructXMLElement(doc,"string",arrayElem);
-						}
-						
-					}
-					
-					//xmlResponse = constructXMLElement(doc,"string",jsonPayload);
+			if(arrayIndex == -1 ? false : true ) {
+				rootElement = arrayProcessing(doc,jsonPayload);
 			}else {
-				xmlResponse = constructXMLElement(doc,"string",jsonPayload);
+				rootElement = processString(doc,jsonPayload,rootElement);
 			}
 				
-			 
+			doc.appendChild(rootElement);
+			responseXML = toXmlString(doc);
+			
 		}catch(NumberFormatException nfe) {
 			nfe.printStackTrace();
 		}catch(ParserConfigurationException pce) {
 			pce.printStackTrace();
 		}catch(TransformerException te) {
 			te.printStackTrace();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		return xmlResponse;
+		return responseXML;
 		
 	}
 	
@@ -87,16 +77,13 @@ public class JSONXMLConverterImpl implements JSONXMLConverter {
     }
 	
 	
-	private String constructXMLElement(Document doc,String element, String value) throws TransformerException {
+	private Element constructXMLElement(Document doc,String element, String value) throws TransformerException {
 		 Element rootElement = doc.createElement(element);
-		 
 		 if(!element.equals("null")) {
+			if(value != null)
 			rootElement.appendChild(doc.createTextNode(value));
 		 }
-		 
-		 doc.appendChild(rootElement);
-		 
-		 return toXmlString(doc);
+		 return rootElement;
 	}
 	
 	
@@ -118,6 +105,44 @@ public class JSONXMLConverterImpl implements JSONXMLConverter {
         Matcher hasDigit = digit.matcher(jsonArray);
 		Matcher hasSpecial = special.matcher(jsonArray);
 		return (hasLetter.find() || hasDigit.find())&& hasSpecial.find();
+	}
+	
+	
+	private Element arrayProcessing(Document doc ,String jsonPayload) throws TransformerException, JSONException {
+		
+		String [] arrayCommaSliper = jsonPayload.replaceFirst("[\\[]", "").replaceFirst("[\\]]", "").split(",");
+		Element rootElement = doc.createElement("array");
+		
+		for(String arrayElem : arrayCommaSliper) {
+			
+			Element childEle = null;
+			
+			int childArray = arrayElem.indexOf("[");
+			
+			if(childArray == -1 ? false : true) {
+				arrayElem.replaceFirst("\\[", "");
+				arrayProcessing(doc,arrayElem);
+			}
+			childEle = processString(doc,arrayElem,childEle);
+		 	rootElement.appendChild(childEle);
+			
+			//doc.appendChild(rootElement);
+		}
+		return rootElement;
+	}
+	
+	
+	private Element processString(Document doc,String arrayElem,Element childEle) throws TransformerException {
+		if(isNumeric(arrayElem)) {	
+			childEle =  constructXMLElement(doc,"number",arrayElem);
+		}else if(arrayElem.equals("true") || arrayElem.equals("false") || arrayElem.equals("TRUE") || arrayElem.equals("FALSE") ) {
+			childEle =  constructXMLElement(doc,"boolean",arrayElem);
+		}else if(arrayElem.equals("null") || arrayElem.equals("NULL")) {
+			childEle =  constructXMLElement(doc,"null",arrayElem);
+		}else {
+			childEle =  constructXMLElement(doc,"string",arrayElem);
+		}
+		return childEle;
 	}
 	
 
