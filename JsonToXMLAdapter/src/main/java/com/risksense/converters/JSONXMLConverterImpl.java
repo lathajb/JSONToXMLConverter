@@ -14,29 +14,41 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.risksense.constants.Constants;
+import com.risksense.exceptions.ParsonException;
 
 /**
- * JSONXMLConverterImpl is the implementation class which facilitates how to construct xml string by the given json
+ * JSONXMLConverterImpl is the implementation class which facilitates how to
+ * construct xml string by the given json
+ * 
  * @author janlatha
  *
  */
 public class JSONXMLConverterImpl implements JSONXMLConverter {
 
-	
+	Logger logger = LoggerFactory.getLogger(JSONXMLConverterImpl.class);
+
+	public JSONXMLConverterImpl() {
+		logger.info("JSONXMLConverterImpl Object Instatiating");
+	}
+
 	/**
 	 * convertJSONtoXML - manipulate and construct the xml string response
+	 * 
 	 * @return XML string
 	 * @param json request payload
 	 * @throws IOException
 	 */
 	@Override
-	public String convertJSONtoXML(String jsonPayload) throws IOException {
+	public String convertJSONtoXML(String jsonPayload) throws Exception {
 
+		logger.info("JSONXMLConverterImpl - convertJSONtoXML method Invoked");
 		Element rootElement = null;
 		DocumentBuilderFactory docFactory = null;
 		DocumentBuilder docBuilder = null;
@@ -58,7 +70,7 @@ public class JSONXMLConverterImpl implements JSONXMLConverter {
 					Element childEle = null;
 					String keyStr = (String) key;
 					Object keyvalue = jsonObj.get(keyStr);
-					childEle = iterateJsonObject(doc,keyvalue,childEle);
+					childEle = iterateJsonObject(doc, keyvalue, childEle);
 					// creating the attribute property
 					Attr objAttribute = doc.createAttribute(Constants.ATTR_NAME);
 					objAttribute.setValue(keyStr);
@@ -68,13 +80,13 @@ public class JSONXMLConverterImpl implements JSONXMLConverter {
 				}
 				rootElement = rootObjectElement;
 			} else if (c == '[') {
-				
+
 				JSONArray jsonArrayElements = new JSONArray(jsonPayload);
 				Element rootObjectElement = doc.createElement(Constants.ARRAY_ELE);
 
 				for (Object jsonArrayElem : jsonArrayElements) {
 					Element childEle = null;
-					childEle = iterateJsonObject(doc,jsonArrayElem,childEle);
+					childEle = iterateJsonObject(doc, jsonArrayElem, childEle);
 					rootObjectElement.appendChild(childEle);
 				}
 				rootElement = rootObjectElement;
@@ -87,30 +99,32 @@ public class JSONXMLConverterImpl implements JSONXMLConverter {
 			responseXML = convertXmlToString(doc);
 
 		} catch (NumberFormatException nfe) {
-			nfe.printStackTrace();
+			throw new NumberFormatException();
 		} catch (ParserConfigurationException pce) {
-			pce.printStackTrace();
+			throw new ParsonException(pce);
 		} catch (TransformerException te) {
-			te.printStackTrace();
+			throw new TransformerException(te.getCause());
 		}
+
+		logger.info("JSONXMLConverterImpl - convertJSONtoXML method execution completed");
 		return responseXML;
 
 	}
 
-	
 	/**
 	 * convertXmlToString - which will convert given xml to string format
+	 * 
 	 * @param document
 	 * @return
 	 * @throws TransformerException
 	 */
 	private String convertXmlToString(Document document) throws TransformerException {
-		
+
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
 		Transformer transformer = transformerFactory.newTransformer();
-		
+
 		DOMSource source = new DOMSource(document);
-		
+
 		StringWriter strWriter = new StringWriter();
 		StreamResult result = new StreamResult(strWriter);
 		transformer.transform(source, result);
@@ -119,6 +133,7 @@ public class JSONXMLConverterImpl implements JSONXMLConverter {
 
 	/**
 	 * constructXMLElement - Used to construct basic xml elements
+	 * 
 	 * @param doc
 	 * @param element
 	 * @param value
@@ -126,19 +141,19 @@ public class JSONXMLConverterImpl implements JSONXMLConverter {
 	 * @return
 	 * @throws TransformerException
 	 */
-	private Element constructXMLElement(Document doc, String element, String value, String isObjectOrArray)
+	private Element constructXMLElement(Document doc, String elementName, String value, String isObjectOrArray)
 			throws TransformerException {
-		Element rootElement = doc.createElement(element);
-		if (!element.equals(Constants.NULL)) {
+		Element rootElement = doc.createElement(elementName);
+		if (!elementName.equals(Constants.NULL)) {
 			if (value != null)
 				rootElement.appendChild(doc.createTextNode(value));
 		}
 		return rootElement;
 	}
 
-	
 	/**
 	 * isNumeric - To validate given string is numeric or not
+	 * 
 	 * @param strNum
 	 * @return
 	 */
@@ -153,6 +168,7 @@ public class JSONXMLConverterImpl implements JSONXMLConverter {
 
 	/**
 	 * processString - To process the given string to corresponding types
+	 * 
 	 * @param doc
 	 * @param arrayElem
 	 * @param childEle
@@ -164,7 +180,8 @@ public class JSONXMLConverterImpl implements JSONXMLConverter {
 			throws TransformerException {
 		if (isNumeric(arrayElem)) {
 			childEle = constructXMLElement(doc, Constants.NUMBER, arrayElem, isObjectOrArray);
-		} else if (arrayElem.equalsIgnoreCase(Constants.BOOLEAN_TRUE) || arrayElem.equalsIgnoreCase(Constants.BOOLEAN_FALSE)) {
+		} else if (arrayElem.equalsIgnoreCase(Constants.BOOLEAN_TRUE)
+				|| arrayElem.equalsIgnoreCase(Constants.BOOLEAN_FALSE)) {
 			childEle = constructXMLElement(doc, Constants.BOOLEAN_ELE, arrayElem, isObjectOrArray);
 		} else if (arrayElem.equalsIgnoreCase(Constants.NULL)) {
 			childEle = constructXMLElement(doc, Constants.NULL, arrayElem, isObjectOrArray);
@@ -181,21 +198,23 @@ public class JSONXMLConverterImpl implements JSONXMLConverter {
 		return childEle;
 	}
 
-	
 	/**
-	 * utitlityn - which will checks the json object type and generate corresponds xml element
+	 * utitlityn - which will checks the json object type and generate corresponds
+	 * xml element
+	 * 
 	 * @param doc
 	 * @param keyvalue
 	 * @param childEle
 	 * @return
+	 * @throws TransformerException
 	 */
-	private Element utitlity(Document doc, Object keyvalue, Element childEle) {
+	private Element utitlity(Document doc, Object keyvalue, Element childEle) throws TransformerException {
 
 		try {
 			String valueString = null;
 			if (keyvalue instanceof Double || keyvalue instanceof Integer) {
 				valueString = String.valueOf(keyvalue);
-				childEle = constructXMLElement(doc, Constants.NUMBER, valueString,Constants.OTHER_TYPES);
+				childEle = constructXMLElement(doc, Constants.NUMBER, valueString, Constants.OTHER_TYPES);
 			} else if (keyvalue instanceof Boolean) {
 				valueString = String.valueOf(keyvalue);
 				childEle = constructXMLElement(doc, Constants.BOOLEAN_ELE, valueString, Constants.OTHER_TYPES);
@@ -204,14 +223,14 @@ public class JSONXMLConverterImpl implements JSONXMLConverter {
 				childEle = processString(doc, valueString, childEle, Constants.OTHER_TYPES);
 			}
 		} catch (TransformerException te) {
-			System.out.println(te.getMessage());
+			throw new TransformerException(te.getCause());
 		}
 		return childEle;
 	}
 
-	
 	/**
 	 * processArray - To process given array
+	 * 
 	 * @param doc
 	 * @param keyvalue
 	 * @param childEle
@@ -223,7 +242,7 @@ public class JSONXMLConverterImpl implements JSONXMLConverter {
 		Element arrayRootElement = doc.createElement(Constants.ARRAY_ELE);
 
 		JSONArray arrayElements = (JSONArray) keyvalue;
-		
+
 		for (Object jsonArrayItem : arrayElements) {
 			if (jsonArrayItem instanceof JSONArray) {
 				childEle = processArray(doc, jsonArrayItem, childEle);
@@ -241,6 +260,7 @@ public class JSONXMLConverterImpl implements JSONXMLConverter {
 
 	/**
 	 * processJsonObject - To process JSON Object
+	 * 
 	 * @param jsonPayload
 	 * @param doc
 	 * @return
@@ -259,7 +279,8 @@ public class JSONXMLConverterImpl implements JSONXMLConverter {
 			Object keyvalue = jsonObj.get(keyStr);
 
 			if (keyvalue instanceof JSONObject) {
-				//childEle = processString(doc, Constants.JSONOBJECT_ELE, childEle, Constants.JSONOBJECT_ELE);
+				// childEle = processString(doc, Constants.JSONOBJECT_ELE, childEle,
+				// Constants.JSONOBJECT_ELE);
 				String complextJsonObj = String.valueOf(keyvalue);
 				childEle = processJsonObject(complextJsonObj, doc);
 			} else if (keyvalue instanceof JSONArray) {
@@ -278,7 +299,8 @@ public class JSONXMLConverterImpl implements JSONXMLConverter {
 	}
 
 	/**
-	 * iterateJsonObject - To traverse over the JSON Object and create an Element 
+	 * iterateJsonObject - To traverse over the JSON Object and create an Element
+	 * 
 	 * @param doc
 	 * @param keyvalue
 	 * @param childEle
@@ -297,6 +319,5 @@ public class JSONXMLConverterImpl implements JSONXMLConverter {
 		}
 		return childEle;
 	}
-	
-	
+
 }

@@ -16,5 +16,5 @@ public interface JSONXMLConverter{
      *
      * @throws java.io.IOException
      */
-    public String convertJSONtoXML(String json) throws IOException;
+    public String convertJSONtoXML(String json) throws Exception;
 }
