@@ -1,5 +1,11 @@
 package com.risksense.constants;
 
+
+/**
+ * Constants
+ * @author janlatha
+ *
+ */
 public class Constants {
 	public static final String NUMBER = "number";	
 	public static final String BOOLEAN_TRUE = "true";

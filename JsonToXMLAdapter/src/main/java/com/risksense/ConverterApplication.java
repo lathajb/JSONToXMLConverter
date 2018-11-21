@@ -10,6 +10,11 @@ import org.springframework.context.annotation.Configuration;
 import com.risksense.converters.JSONXMLConverter;
 import com.risksense.factory.ConverterFactory;
 
+/**
+ * ConverterApplication - Spring boot application which is used for json to xml convertion
+ * @author janlatha
+ *
+ */
 @SpringBootApplication
 @Configuration
 public class ConverterApplication {
