@@ -2,8 +2,6 @@ package com.risksense.converters;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -14,137 +12,291 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.json.JSONException;
+import org.json.JSONArray;
 import org.json.JSONObject;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.util.JSONPObject;
+import com.risksense.constants.Constants;
 
+/**
+ * JSONXMLConverterImpl is the implementation class which facilitates how to construct xml string by the given json
+ * @author janlatha
+ *
+ */
 public class JSONXMLConverterImpl implements JSONXMLConverter {
 
+	
+	/**
+	 * convertJSONtoXML - manipulate and construct the xml string response
+	 * @return XML string
+	 * @param json request payload
+	 * @throws IOException
+	 */
 	@Override
-	public String convertJSONtoXML(String jsonPayload) throws IOException{
-		
-		
-		
+	public String convertJSONtoXML(String jsonPayload) throws IOException {
+
 		Element rootElement = null;
 		DocumentBuilderFactory docFactory = null;
 		DocumentBuilder docBuilder = null;
 		Document doc = null;
 		String responseXML = null;
-		
+
 		try {
-			
 			docFactory = DocumentBuilderFactory.newInstance();
 			docBuilder = docFactory.newDocumentBuilder();
 			doc = docBuilder.newDocument();
-			
-			int arrayIndex = jsonPayload.indexOf("[");
-			
-			if(arrayIndex == -1 ? false : true ) {
-				rootElement = arrayProcessing(doc,jsonPayload);
-			}else {
-				rootElement = processString(doc,jsonPayload,rootElement);
-			}
+
+			char c = jsonPayload.charAt(0);
+			if (c == '{') {
+
+				JSONObject jsonObj = new JSONObject(jsonPayload);
+				Element rootObjectElement = doc.createElement(Constants.JSONOBJECT_ELE);
+
+				for (Object key : jsonObj.keySet()) {
+					Element childEle = null;
+					String keyStr = (String) key;
+					Object keyvalue = jsonObj.get(keyStr);
+					childEle = iterateJsonObject(doc,keyvalue,childEle);
+					// creating the attribute property
+					Attr objAttribute = doc.createAttribute(Constants.ATTR_NAME);
+					objAttribute.setValue(keyStr);
+					childEle.setAttributeNode(objAttribute);
+
+					rootObjectElement.appendChild(childEle);
+				}
+				rootElement = rootObjectElement;
+			} else if (c == '[') {
 				
+				JSONArray jsonArrayElements = new JSONArray(jsonPayload);
+				Element rootObjectElement = doc.createElement(Constants.ARRAY_ELE);
+
+				for (Object jsonArrayElem : jsonArrayElements) {
+					Element childEle = null;
+					childEle = iterateJsonObject(doc,jsonArrayElem,childEle);
+					rootObjectElement.appendChild(childEle);
+				}
+				rootElement = rootObjectElement;
+
+			} else {
+				rootElement = processString(doc, jsonPayload, rootElement, Constants.OTHER_TYPES);
+			}
+
 			doc.appendChild(rootElement);
-			responseXML = toXmlString(doc);
-			
-		}catch(NumberFormatException nfe) {
+			responseXML = convertXmlToString(doc);
+
+		} catch (NumberFormatException nfe) {
 			nfe.printStackTrace();
-		}catch(ParserConfigurationException pce) {
+		} catch (ParserConfigurationException pce) {
 			pce.printStackTrace();
-		}catch(TransformerException te) {
+		} catch (TransformerException te) {
 			te.printStackTrace();
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		return responseXML;
+
+	}
+
+	
+	/**
+	 * convertXmlToString - which will convert given xml to string format
+	 * @param document
+	 * @return
+	 * @throws TransformerException
+	 */
+	private String convertXmlToString(Document document) throws TransformerException {
 		
-	}
-	
-	private String toXmlString(Document document) throws TransformerException {
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        DOMSource source = new DOMSource(document);
-        StringWriter strWriter = new StringWriter();
-        StreamResult result = new StreamResult(strWriter);
-        transformer.transform(source, result);
-        return strWriter.getBuffer().toString(); 
-    }
-	
-	
-	private Element constructXMLElement(Document doc,String element, String value) throws TransformerException {
-		 Element rootElement = doc.createElement(element);
-		 if(!element.equals("null")) {
-			if(value != null)
-			rootElement.appendChild(doc.createTextNode(value));
-		 }
-		 return rootElement;
-	}
-	
-	
-	private boolean isNumeric(String strNum) {
-	    try {
-	        Double.parseDouble(strNum);
-	    } catch (NumberFormatException | NullPointerException nfe) {
-	        return false;
-	    }
-	    return true;
-	}
-	
-	
-	private boolean isArray(String jsonArray) {
-		Pattern letter = Pattern.compile("[a-zA-z]");
-        Pattern digit = Pattern.compile("[0-9]");
-		Pattern special = Pattern.compile ("\\[\\]");
-		Matcher hasLetter = letter.matcher(jsonArray);
-        Matcher hasDigit = digit.matcher(jsonArray);
-		Matcher hasSpecial = special.matcher(jsonArray);
-		return (hasLetter.find() || hasDigit.find())&& hasSpecial.find();
-	}
-	
-	
-	private Element arrayProcessing(Document doc ,String jsonPayload) throws TransformerException, JSONException {
+		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		Transformer transformer = transformerFactory.newTransformer();
 		
-		String [] arrayCommaSliper = jsonPayload.replaceFirst("[\\[]", "").replaceFirst("[\\]]", "").split(",");
-		Element rootElement = doc.createElement("array");
+		DOMSource source = new DOMSource(document);
 		
-		for(String arrayElem : arrayCommaSliper) {
-			
-			Element childEle = null;
-			
-			int childArray = arrayElem.indexOf("[");
-			
-			if(childArray == -1 ? false : true) {
-				arrayElem.replaceFirst("\\[", "");
-				arrayProcessing(doc,arrayElem);
-			}
-			childEle = processString(doc,arrayElem,childEle);
-		 	rootElement.appendChild(childEle);
-			
-			//doc.appendChild(rootElement);
+		StringWriter strWriter = new StringWriter();
+		StreamResult result = new StreamResult(strWriter);
+		transformer.transform(source, result);
+		return strWriter.getBuffer().toString();
+	}
+
+	/**
+	 * constructXMLElement - Used to construct basic xml elements
+	 * @param doc
+	 * @param element
+	 * @param value
+	 * @param isObjectOrArray
+	 * @return
+	 * @throws TransformerException
+	 */
+	private Element constructXMLElement(Document doc, String element, String value, String isObjectOrArray)
+			throws TransformerException {
+		Element rootElement = doc.createElement(element);
+		if (!element.equals(Constants.NULL)) {
+			if (value != null)
+				rootElement.appendChild(doc.createTextNode(value));
 		}
 		return rootElement;
 	}
+
 	
+	/**
+	 * isNumeric - To validate given string is numeric or not
+	 * @param strNum
+	 * @return
+	 */
+	private boolean isNumeric(String strNum) {
+		try {
+			Double.parseDouble(strNum);
+		} catch (NumberFormatException | NullPointerException nfe) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * processString - To process the given string to corresponding types
+	 * @param doc
+	 * @param arrayElem
+	 * @param childEle
+	 * @param isObjectOrArray
+	 * @return
+	 * @throws TransformerException
+	 */
+	private Element processString(Document doc, String arrayElem, Element childEle, String isObjectOrArray)
+			throws TransformerException {
+		if (isNumeric(arrayElem)) {
+			childEle = constructXMLElement(doc, Constants.NUMBER, arrayElem, isObjectOrArray);
+		} else if (arrayElem.equalsIgnoreCase(Constants.BOOLEAN_TRUE) || arrayElem.equalsIgnoreCase(Constants.BOOLEAN_FALSE)) {
+			childEle = constructXMLElement(doc, Constants.BOOLEAN_ELE, arrayElem, isObjectOrArray);
+		} else if (arrayElem.equalsIgnoreCase(Constants.NULL)) {
+			childEle = constructXMLElement(doc, Constants.NULL, arrayElem, isObjectOrArray);
+		} else {
+
+			if (isObjectOrArray.equals(Constants.JSONOBJECT_ELE)) {
+				childEle = constructXMLElement(doc, Constants.JSONOBJECT_ELE, null, isObjectOrArray);
+			} else {
+				childEle = constructXMLElement(doc, Constants.STRING_ELE, arrayElem, isObjectOrArray);
+			}
+
+		}
+
+		return childEle;
+	}
+
 	
-	private Element processString(Document doc,String arrayElem,Element childEle) throws TransformerException {
-		if(isNumeric(arrayElem)) {	
-			childEle =  constructXMLElement(doc,"number",arrayElem);
-		}else if(arrayElem.equals("true") || arrayElem.equals("false") || arrayElem.equals("TRUE") || arrayElem.equals("FALSE") ) {
-			childEle =  constructXMLElement(doc,"boolean",arrayElem);
-		}else if(arrayElem.equals("null") || arrayElem.equals("NULL")) {
-			childEle =  constructXMLElement(doc,"null",arrayElem);
-		}else {
-			childEle =  constructXMLElement(doc,"string",arrayElem);
+	/**
+	 * utitlityn - which will checks the json object type and generate corresponds xml element
+	 * @param doc
+	 * @param keyvalue
+	 * @param childEle
+	 * @return
+	 */
+	private Element utitlity(Document doc, Object keyvalue, Element childEle) {
+
+		try {
+			String valueString = null;
+			if (keyvalue instanceof Double || keyvalue instanceof Integer) {
+				valueString = String.valueOf(keyvalue);
+				childEle = constructXMLElement(doc, Constants.NUMBER, valueString,Constants.OTHER_TYPES);
+			} else if (keyvalue instanceof Boolean) {
+				valueString = String.valueOf(keyvalue);
+				childEle = constructXMLElement(doc, Constants.BOOLEAN_ELE, valueString, Constants.OTHER_TYPES);
+			} else {
+				valueString = String.valueOf(keyvalue);
+				childEle = processString(doc, valueString, childEle, Constants.OTHER_TYPES);
+			}
+		} catch (TransformerException te) {
+			System.out.println(te.getMessage());
+		}
+		return childEle;
+	}
+
+	
+	/**
+	 * processArray - To process given array
+	 * @param doc
+	 * @param keyvalue
+	 * @param childEle
+	 * @return
+	 * @throws TransformerException
+	 */
+	private Element processArray(Document doc, Object keyvalue, Element childEle) throws TransformerException {
+
+		Element arrayRootElement = doc.createElement(Constants.ARRAY_ELE);
+
+		JSONArray arrayElements = (JSONArray) keyvalue;
+		
+		for (Object jsonArrayItem : arrayElements) {
+			if (jsonArrayItem instanceof JSONArray) {
+				childEle = processArray(doc, jsonArrayItem, childEle);
+			} else if (jsonArrayItem instanceof JSONObject) {
+				String jsonObj = String.valueOf(jsonArrayItem);
+				childEle = processJsonObject(jsonObj, doc);
+			} else {
+				childEle = utitlity(doc, jsonArrayItem, arrayRootElement);
+			}
+			arrayRootElement.appendChild(childEle);
+		}
+
+		return arrayRootElement;
+	}
+
+	/**
+	 * processJsonObject - To process JSON Object
+	 * @param jsonPayload
+	 * @param doc
+	 * @return
+	 * @throws TransformerException
+	 */
+	private Element processJsonObject(String jsonPayload, Document doc) throws TransformerException {
+
+		JSONObject jsonObj = new JSONObject(jsonPayload);
+		Element rootObjectElement = doc.createElement(Constants.JSONOBJECT_ELE);
+
+		for (Object key : jsonObj.keySet()) {
+
+			Element childEle = null;
+			// based on you key types
+			String keyStr = (String) key;
+			Object keyvalue = jsonObj.get(keyStr);
+
+			if (keyvalue instanceof JSONObject) {
+				//childEle = processString(doc, Constants.JSONOBJECT_ELE, childEle, Constants.JSONOBJECT_ELE);
+				String complextJsonObj = String.valueOf(keyvalue);
+				childEle = processJsonObject(complextJsonObj, doc);
+			} else if (keyvalue instanceof JSONArray) {
+				childEle = processArray(doc, keyvalue, childEle);
+			} else {
+				childEle = utitlity(doc, keyvalue, childEle);
+			}
+
+			Attr objAttribute = doc.createAttribute(Constants.ATTR_NAME);
+			objAttribute.setValue(keyStr);
+			childEle.setAttributeNode(objAttribute);
+
+			rootObjectElement.appendChild(childEle);
+		}
+		return rootObjectElement;
+	}
+
+	/**
+	 * iterateJsonObject - To traverse over the JSON Object and create an Element 
+	 * @param doc
+	 * @param keyvalue
+	 * @param childEle
+	 * @return
+	 * @throws TransformerException
+	 */
+	private Element iterateJsonObject(Document doc, Object keyvalue, Element childEle) throws TransformerException {
+
+		if (keyvalue instanceof JSONObject) {
+			String strJsonObj = String.valueOf(keyvalue);
+			childEle = processJsonObject(strJsonObj, doc);
+		} else if (keyvalue instanceof JSONArray) {
+			childEle = processArray(doc, keyvalue, childEle);
+		} else {
+			childEle = utitlity(doc, keyvalue, childEle);
 		}
 		return childEle;
 	}
 	
-
 	
 }

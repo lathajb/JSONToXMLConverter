@@ -2,8 +2,6 @@ package com.risksense.factory;
 
 import java.io.IOException;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.risksense.converters.JSONXMLConverter;
 import com.risksense.converters.JSONXMLConverterImpl;
 
@@ -12,24 +10,21 @@ import com.risksense.converters.JSONXMLConverterImpl;
  */
 public final class ConverterFactory {
 
-	private final  JSONXMLConverter jsonxmlConverter;
-	
-	private ConverterFactory(JSONXMLConverter jsonxmlConverter) {
-		this.jsonxmlConverter = jsonxmlConverter;
+	private static JSONXMLConverter jsonxmlConverter;
+
+	/**
+	 * You should implement this method having it return your version of
+	 * {@link com.risksense.converters.JSONXMLConverter}.
+	 *
+	 * @return {@link com.risksense.converters.JSONXMLConverter} implementation you
+	 *         created.
+	 * @throws IOException
+	 */
+	public static final JSONXMLConverter createJSONToXMLConverter() throws IOException {
+		if (jsonxmlConverter == null) {
+			jsonxmlConverter = new JSONXMLConverterImpl();
+		}
+		return jsonxmlConverter;
+
 	}
-	
-	
-	
-    /**
-     * You should implement this method having it return your version of
-     * {@link com.risksense.converters.JSONXMLConverter}.
-     *
-     * @return {@link com.risksense.converters.JSONXMLConverter} implementation you created.
-     * @throws IOException 
-     */
-    public static final JSONXMLConverter createJSONToXMLConverter() throws IOException {
-    	JSONXMLConverter jsonxmlConverter = new JSONXMLConverterImpl();
-    return jsonxmlConverter;
-      
-    }
 }
