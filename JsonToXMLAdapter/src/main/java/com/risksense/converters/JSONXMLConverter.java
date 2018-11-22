@@ -1,7 +1,5 @@
 package com.risksense.converters;
 
-import java.io.IOException;
-
 /**
  * This interface provides methods that are required for creating a converter from JSON to XML.
  */

@@ -2,6 +2,9 @@ package com.risksense.factory;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.risksense.converters.JSONXMLConverter;
 import com.risksense.converters.JSONXMLConverterImpl;
 
@@ -10,7 +13,13 @@ import com.risksense.converters.JSONXMLConverterImpl;
  */
 public final class ConverterFactory {
 
+	Logger logger = LoggerFactory.getLogger(ConverterFactory.class);
+	
 	private static JSONXMLConverter jsonxmlConverter;
+	
+	private ConverterFactory() {
+		logger.info("ConverterFactory - constructor Invoked...");
+	}
 
 	/**
 	 * You should implement this method having it return your version of
@@ -20,7 +29,7 @@ public final class ConverterFactory {
 	 *         created.
 	 * @throws IOException
 	 */
-	public static final JSONXMLConverter createJSONToXMLConverter() throws IOException {
+	public static final synchronized JSONXMLConverter createJSONToXMLConverter() {
 		if (jsonxmlConverter == null) {
 			jsonxmlConverter = new JSONXMLConverterImpl();
 		}

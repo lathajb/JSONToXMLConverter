@@ -1,5 +1,7 @@
 package com.risksense.constants;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Constants
@@ -7,6 +9,13 @@ package com.risksense.constants;
  *
  */
 public class Constants {
+	
+	Logger logger = LoggerFactory.getLogger(Constants.class);
+	
+	private Constants() {
+		logger.info("Inside Constants - constructer");
+	}
+	
 	public static final String NUMBER = "number";	
 	public static final String BOOLEAN_TRUE = "true";
 	public static final String BOOLEAN_FALSE = "false";

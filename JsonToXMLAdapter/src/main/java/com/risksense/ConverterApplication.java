@@ -24,13 +24,21 @@ public class ConverterApplication {
 	Logger logger = LoggerFactory.getLogger(ConverterApplication.class);
 	
 	
+	/**
+	 * jSONXMLConverter - Constructing the JSONXMLConverter Object
+	 * @return JSONXMLConverter
+	 * @throws IOException
+	 */
 	@Bean
-	public JSONXMLConverter jSONXMLConverter() throws IOException{
-		logger.info("JSONXMLConverter - jSONXMLConverter method for Instance creation");;
+	public JSONXMLConverter jSONXMLConverter(){
+		logger.info("JSONXMLConverter - jSONXMLConverter method for Instance creation");
 		return ConverterFactory.createJSONToXMLConverter();
 	}
 	
-	
+	/**
+	 * Spring boot application initializer
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		SpringApplication.run(ConverterApplication.class, args);
 	}

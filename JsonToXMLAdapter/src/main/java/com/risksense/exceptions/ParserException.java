@@ -6,11 +6,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(value= HttpStatus.BAD_REQUEST, reason="Exception while parsing JSON to XML") //400
-public class ParsonException extends Exception {
+public class ParserException extends Exception {
 
 		private static final long serialVersionUID = -3332292346834265371L;
 
-		public ParsonException(ParserConfigurationException pce){
+		public ParserException(ParserConfigurationException pce){
 			super(pce.getCause());
 		}
 }

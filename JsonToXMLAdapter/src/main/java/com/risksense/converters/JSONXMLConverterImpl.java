@@ -21,7 +21,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.risksense.constants.Constants;
-import com.risksense.exceptions.ParsonException;
+import com.risksense.exceptions.ParserException;
 
 /**
  * JSONXMLConverterImpl is the implementation class which facilitates how to
@@ -71,7 +71,6 @@ public class JSONXMLConverterImpl implements JSONXMLConverter {
 					String keyStr = (String) key;
 					Object keyvalue = jsonObj.get(keyStr);
 					childEle = iterateJsonObject(doc, keyvalue, childEle);
-					// creating the attribute property
 					Attr objAttribute = doc.createAttribute(Constants.ATTR_NAME);
 					objAttribute.setValue(keyStr);
 					childEle.setAttributeNode(objAttribute);
@@ -101,7 +100,7 @@ public class JSONXMLConverterImpl implements JSONXMLConverter {
 		} catch (NumberFormatException nfe) {
 			throw new NumberFormatException();
 		} catch (ParserConfigurationException pce) {
-			throw new ParsonException(pce);
+			throw new ParserException(pce);
 		} catch (TransformerException te) {
 			throw new TransformerException(te.getCause());
 		}
@@ -120,9 +119,8 @@ public class JSONXMLConverterImpl implements JSONXMLConverter {
 	 */
 	private String convertXmlToString(Document document) throws TransformerException {
 
-		TransformerFactory transformerFactory = TransformerFactory.newInstance();
-		Transformer transformer = transformerFactory.newTransformer();
-
+		Transformer transformer = TransformerFactory.newInstance().newTransformer();
+		
 		DOMSource source = new DOMSource(document);
 
 		StringWriter strWriter = new StringWriter();
@@ -141,12 +139,15 @@ public class JSONXMLConverterImpl implements JSONXMLConverter {
 	 * @return
 	 * @throws TransformerException
 	 */
-	private Element constructXMLElement(Document doc, String elementName, String value, String isObjectOrArray)
-			throws TransformerException {
+	private Element constructXMLElement(Document doc, String elementName, String value, String isObjectOrArray) throws TransformerException{
+		logger.info("Constructing type xml element is:",isObjectOrArray);
+		 
 		Element rootElement = doc.createElement(elementName);
 		if (!elementName.equals(Constants.NULL)) {
-			if (value != null)
-				rootElement.appendChild(doc.createTextNode(value));
+			
+			if(value != null) {
+			rootElement.appendChild(doc.createTextNode(value));
+			}
 		}
 		return rootElement;
 	}
@@ -178,6 +179,7 @@ public class JSONXMLConverterImpl implements JSONXMLConverter {
 	 */
 	private Element processString(Document doc, String arrayElem, Element childEle, String isObjectOrArray)
 			throws TransformerException {
+		
 		if (isNumeric(arrayElem)) {
 			childEle = constructXMLElement(doc, Constants.NUMBER, arrayElem, isObjectOrArray);
 		} else if (arrayElem.equalsIgnoreCase(Constants.BOOLEAN_TRUE)
@@ -240,21 +242,11 @@ public class JSONXMLConverterImpl implements JSONXMLConverter {
 	private Element processArray(Document doc, Object keyvalue, Element childEle) throws TransformerException {
 
 		Element arrayRootElement = doc.createElement(Constants.ARRAY_ELE);
-
 		JSONArray arrayElements = (JSONArray) keyvalue;
-
 		for (Object jsonArrayItem : arrayElements) {
-			if (jsonArrayItem instanceof JSONArray) {
-				childEle = processArray(doc, jsonArrayItem, childEle);
-			} else if (jsonArrayItem instanceof JSONObject) {
-				String jsonObj = String.valueOf(jsonArrayItem);
-				childEle = processJsonObject(jsonObj, doc);
-			} else {
-				childEle = utitlity(doc, jsonArrayItem, arrayRootElement);
-			}
+			childEle = iterateJsonObject(doc,jsonArrayItem,childEle);
 			arrayRootElement.appendChild(childEle);
 		}
-
 		return arrayRootElement;
 	}
 
@@ -272,22 +264,11 @@ public class JSONXMLConverterImpl implements JSONXMLConverter {
 		Element rootObjectElement = doc.createElement(Constants.JSONOBJECT_ELE);
 
 		for (Object key : jsonObj.keySet()) {
-
 			Element childEle = null;
 			// based on you key types
 			String keyStr = (String) key;
 			Object keyvalue = jsonObj.get(keyStr);
-
-			if (keyvalue instanceof JSONObject) {
-				// childEle = processString(doc, Constants.JSONOBJECT_ELE, childEle,
-				// Constants.JSONOBJECT_ELE);
-				String complextJsonObj = String.valueOf(keyvalue);
-				childEle = processJsonObject(complextJsonObj, doc);
-			} else if (keyvalue instanceof JSONArray) {
-				childEle = processArray(doc, keyvalue, childEle);
-			} else {
-				childEle = utitlity(doc, keyvalue, childEle);
-			}
+			childEle = iterateJsonObject(doc,keyvalue,childEle);
 
 			Attr objAttribute = doc.createAttribute(Constants.ATTR_NAME);
 			objAttribute.setValue(keyStr);
