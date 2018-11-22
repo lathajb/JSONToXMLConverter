@@ -1,6 +1,6 @@
 Environment Set up:
 
-        1. Checkout the code from git hub : https://github.com/lathajb/GOOUT.git
+        1. Checkout the code from git hub : https://github.com/lathajb/JSONToXMLConverter.git
 
         2. Go to that folder enter mvn clean eclipse:eclipse
 
