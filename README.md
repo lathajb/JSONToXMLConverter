@@ -8,12 +8,12 @@ Environment Set up:
 
 4. Access the Restfull service endpoint by using : http://localhost:8080/xmlconverter
 
-  headers - Content-Type : application/xml
-          Accept : application/xml
+        headers - Content-Type : application/xml
+                Accept : application/xml
           
-  Sample Payload : { "name":"latha"}
+        Sample Payload : { "name":"latha"}
   
   
-  Expected output : <object> 
-                      <string name="name">latha</string> 
-                    </object> 
+        Expected output : <object> 
+                            <string name="name">latha</string> 
+                          </object> 
